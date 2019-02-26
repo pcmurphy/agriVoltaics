@@ -4,7 +4,7 @@
 # Author: P. Murphy
 # Email: murphyp@email.arizona.edu
 # Date: 2019-01-21
-# Revised: 2019-02-19
+# Revised: 2019-02-26
 #
 ###
 
@@ -68,6 +68,9 @@ dataFileC <- paste0(dataPath,collectionDate,"/B2_Ag_C_CR1000_Table1_",fileDate,"
 dataFilePV <- paste0(dataPath,collectionDate,"/B2_Ag_PV_CR1000_Table1_",fileDate,".dat")
 dataFilePVcontrol <- paste0(dataPath,collectionDate,"/B2_Ag_PVcontrol_CR1000_Table1_",fileDate,".dat")
 
+color4 <- c("blue","red","cadetblue2","orange")
+color24 <- c("Black",rgb(103,0,31, max = 255),rgb(214,96,77, max = 255),rgb(244,165,130, max = 255),rgb(253,219,199, max = 255),rgb(247,247,247, max = 255),rgb(209,229,240, max = 255),rgb(146,197,222, max = 255),rgb(67,147,195, max = 255),rgb(33,102,172, max = 255),rgb(5,48,97, max = 255),rgb(103,0,31, max = 255))
+
 
 ##### 
 # Functions
@@ -126,14 +129,13 @@ B2DataPlotPVcontrol[,2:ncol(B2DataPlotPVcontrol)] <- sapply(B2DataPlotPVcontrol[
 #
 
 # VWC
-colsVWC <- c("Black",rgb(103,0,31, max = 255),rgb(214,96,77, max = 255),rgb(244,165,130, max = 255),rgb(253,219,199, max = 255),rgb(247,247,247, max = 255),rgb(209,229,240, max = 255),rgb(146,197,222, max = 255),rgb(67,147,195, max = 255),rgb(33,102,172, max = 255),rgb(5,48,97, max = 255),rgb(103,0,31, max = 255))
 
 # PV garden
 png(file = paste0("VWC_PVgarden_",collectionDate,".png"), width = 2500, height = 1000, res = 300)
 par(mar=c(2,5,1,1), lwd=1)
 plot(x = B2DataPlotPV$TIMESTAMP,
      y = B2DataPlotPV$VWC.1.,
-     col = colsVWC[1],
+     col = color24[1],
      type = "l",
      ylim = c(0,0.6),
      ylab = expression("VWC (m"^{3} ~ "m"^{-3}* ")"),
@@ -146,13 +148,13 @@ for (i in c(2:12)) {
   
   lines(x = B2DataPlotPV$TIMESTAMP,
         y = B2DataPlotPV[,plotNum],
-        col = colsVWC[i])
+        col = color24[i])
 }
 grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
      lwd = par("lwd"), equilogs = TRUE)
 legend("bottomleft",
        legend=paste0("PV",seq(1:12)),
-       col=colsVWC,
+       col=color24,
        lty=1,
        cex=0.8)
 box(lty = "solid", col = "black")
@@ -163,7 +165,7 @@ png(file = paste0("VWC_Cgarden_",collectionDate,".png"), width = 2500, height = 
 par(mar=c(2,5,1,1), lwd=1)
 plot(x = B2DataPlotC$TIMESTAMP,
      y = B2DataPlotC$VWC.1.,
-     col = colsVWC[1],
+     col = color24[1],
      type = "l",
      ylim = c(0,0.6),
      ylab = expression("VWC (m"^{3} ~ "m"^{-3}* ")"),
@@ -176,13 +178,13 @@ for (i in c(2:12)) {
   
   lines(x = B2DataPlotC$TIMESTAMP,
         y = B2DataPlotC[,plotNum],
-        col = colsVWC[i])
+        col = color24[i])
 }
 grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
      lwd = par("lwd"), equilogs = TRUE)
 legend("bottomleft",
        legend=paste0("C",seq(1:12)),
-       col=colsVWC,
+       col=color24,
        lty=1,
        cex=0.8)
 box(lty = "solid", col = "black")
@@ -190,13 +192,13 @@ dev.off()
 
 
 # soilT
-colsSoilT <- c("Black",rgb(103,0,31, max = 255),rgb(214,96,77, max = 255),rgb(244,165,130, max = 255),rgb(253,219,199, max = 255),rgb(247,247,247, max = 255),rgb(209,229,240, max = 255),rgb(146,197,222, max = 255),rgb(67,147,195, max = 255),rgb(33,102,172, max = 255),rgb(5,48,97, max = 255),rgb(103,0,31, max = 255))
+
 # PV garden
 png(file = paste0("SoilT_PVgarden_",collectionDate,".png"), width = 2500, height = 1000, res = 300)
 par(mar=c(2,5,1,1), lwd=1)
 plot(x = B2DataPlotPV$TIMESTAMP,
      y = B2DataPlotPV$Temp.1.,
-     col = colsSoilT[1],
+     col = color24[1],
      type = "l",
      ylim = c(0,50),
      ylab = expression("Soil Temp ("*degree*C*")"),
@@ -209,13 +211,13 @@ for (i in c(2:12)) {
   
   lines(x = B2DataPlotPV$TIMESTAMP,
         y = B2DataPlotPV[,plotNum],
-        col = colsSoilT[i])
+        col = color24[i])
 }
 grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
      lwd = par("lwd"), equilogs = TRUE)
 legend("bottomleft",
        legend=paste0("PV",seq(1:12)),
-       col=colsSoilT,
+       col=color24,
        lty=1,
        cex=0.8)
 box(lty = "solid", col = "black")
@@ -226,7 +228,7 @@ png(file = paste0("SoilT_Cgarden_",collectionDate,".png"), width = 2500, height 
 par(mar=c(2,5,1,1), lwd=1)
 plot(x = B2DataPlotC$TIMESTAMP,
      y = B2DataPlotC$Temp.1.,
-     col = colsSoilT[1],
+     col = color24[1],
      type = "l",
      ylim = c(0,50),
      ylab = expression("Soil Temp ("*degree*C*")"),
@@ -239,13 +241,13 @@ for (i in c(2:12)) {
   
   lines(x = B2DataPlotC$TIMESTAMP,
         y = B2DataPlotC[,plotNum],
-        col = colsSoilT[i])
+        col = color24[i])
 }
 grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
      lwd = par("lwd"), equilogs = TRUE)
 legend("bottomleft",
        legend=paste0("C",seq(1:12)),
-       col=colsSoilT,
+       col=color24,
        lty=1,
        cex=0.8)
 box(lty = "solid", col = "black")
@@ -253,12 +255,11 @@ dev.off()
 
 
 # Micromet
-colsMet <- c("blue","red","cadetblue2","orange")
 png(file = paste0("met_",collectionDate,".png"), width = 2500, height = 1000, res = 300)
 par(mar=c(4,5,1,4), lwd=1)
 plot(x = B2DataPlotPV$TIMESTAMP,
      y = B2DataPlotPV$AirTC_PV1_Avg,
-     col = colsMet[1],
+     col = color4[1],
      type = "l",
      ylim = c(-10,50),
      ylab = expression("Air Temp ("*degree*C*")"),
@@ -268,11 +269,11 @@ plot(x = B2DataPlotPV$TIMESTAMP,
 axis.POSIXct(1, at = seq(firstDate, recentDate, by = "5 days"), format = "%Y-%m-%d")
 lines(x = B2DataPlotC$TIMESTAMP,
       y = B2DataPlotC$AirTC_C_Avg,
-      col = colsMet[2])
+      col = color4[2])
 par(new = T)
 plot(x = B2DataPlotPV$TIMESTAMP,
      y = B2DataPlotPV$RH_PV1,
-     col = colsMet[3],
+     col = color4[3],
      type = "l",
      axes = F,
      xlab = NA,
@@ -282,12 +283,12 @@ axis(side = 4)
 mtext(side = 4, line = 3, "Relative Humidity (%)")
 lines(x = B2DataPlotC$TIMESTAMP,
       y = B2DataPlotC$RH_C,
-      col = colsMet[4])
+      col = color4[4])
 grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
      lwd = par("lwd"), equilogs = TRUE)
 legend("topleft",
        legend=c("AirT PV","AirT C","RH PV","RH C"),
-       col=colsMet,
+       col=color4,
        lty=1,
        cex=0.8)
 box(lty = "solid", col = "black")
@@ -295,12 +296,11 @@ dev.off()
 
 
 # PAR
-colsPAR <- c("blue","cadetblue2","red")
 png(file = paste0("PAR_",collectionDate,".png"), width = 2500, height = 1000, res = 300)
 par(mar=c(4,5,1,1), lwd=1)
 plot(x = B2DataPlotPV$TIMESTAMP,
      y = B2DataPlotPV$PAR_Den_PV1_Avg,
-     col = colsPAR[1],
+     col = color4[1],
      type = "l",
      ylim = c(min(B2DataPlotC[,"PAR_Den_C_Avg"], na.rm = T),max(B2DataPlotC[,c("PAR_Den_C_Avg")], na.rm = T)),
      ylab = expression("PAR Density (" * mu * "mol"~ m^{-2} ~ s^{-1} * ")"),
@@ -310,15 +310,15 @@ plot(x = B2DataPlotPV$TIMESTAMP,
 #axis.POSIXct(1, at = seq(firstDate, recentDate, by = "5 days"), format = "%Y-%m-%d")
 lines(x = B2DataPlotPV$TIMESTAMP,
       y = B2DataPlotPV$PAR_Den_PV2_Avg,
-      col = colsPAR[2])
+      col = color4[3])
 lines(x = B2DataPlotC$TIMESTAMP,
       y = B2DataPlotC$PAR_Den_C_Avg,
-      col = colsPAR[3])
+      col = color4[2])
 grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
      lwd = par("lwd"), equilogs = TRUE)
 legend("topleft",
        legend=c("PV1","PV2","C"),
-       col=colsPAR,
+       col=c(color4[1],color4[3],color4[2]),
        lty=1,
        cex=0.8)
 box(lty = "solid", col = "black")
@@ -327,14 +327,13 @@ dev.off()
 
 
 # Solar panel temp
-colsSolarT <- rep(c("Black",rgb(103,0,31, max = 255),rgb(214,96,77, max = 255),rgb(244,165,130, max = 255),rgb(253,219,199, max = 255),rgb(247,247,247, max = 255),rgb(209,229,240, max = 255),rgb(146,197,222, max = 255),rgb(67,147,195, max = 255),rgb(33,102,172, max = 255),rgb(5,48,97, max = 255),rgb(103,0,31, max = 255)),2)
 
 # PV garden
 png(file = paste0("solarT_PVgarden_",collectionDate,".png"), width = 2500, height = 1000, res = 300)
 par(mar=c(2,5,1,1), lwd=1)
 plot(x = B2DataPlotPV$TIMESTAMP,
      y = B2DataPlotPV$SEVolt_Avg.1.,
-     col = colsSolarT[1],
+     col = color24[1],
      type = "l",
      ylim = c(0,200),
      ylab = expression("PV Temp ("*degree*C*")"),
@@ -347,16 +346,16 @@ for (i in c(2:24)) {
   
   lines(x = B2DataPlotPV$TIMESTAMP,
         y = B2DataPlotPV[,plotNum],
-        col = colsSolarT[i])
+        col = color24[i])
 }
-grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
-     lwd = par("lwd"), equilogs = TRUE)
-legend("bottomleft",
-       legend=paste0("Garden",seq(1:24)),
-       col=colsSolarT,
-       lty=1,
-       cex=0.8)
-box(lty = "solid", col = "black")
+# grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
+#      lwd = par("lwd"), equilogs = TRUE)
+# legend("bottomleft",
+#        legend=paste0("Garden",seq(1:24)),
+#        col=color24,
+#        lty=1,
+#        cex=0.8)
+# box(lty = "solid", col = "black")
 dev.off()
 
 # Control garden
@@ -364,7 +363,7 @@ png(file = paste0("solarT_controlGarden_",collectionDate,".png"), width = 2500, 
 par(mar=c(2,5,1,1), lwd=1)
 plot(x = B2DataPlotPVcontrol$TIMESTAMP,
      y = B2DataPlotPVcontrol$SEVolt_Avg.1.,
-     col = colsSolarT[1],
+     col = color24[1],
      type = "l",
      ylim = c(0,200),
      ylab = expression("PV Temp ("*degree*C*")"),
@@ -377,13 +376,13 @@ for (i in c(2:24)) {
   
   lines(x = B2DataPlotPVcontrol$TIMESTAMP,
         y = B2DataPlotPVcontrol[,plotNum],
-        col = colsSolarT[i])
+        col = color24[i])
 }
-grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
-     lwd = par("lwd"), equilogs = TRUE)
+# grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
+#      lwd = par("lwd"), equilogs = TRUE)
 # legend("bottomleft",
 #        legend=paste0("Garden",seq(1:24)),
-#        col=colsSolarT,
+#        col=color24,
 #        lty=1,
 #        cex=0.8)
 box(lty = "solid", col = "black")
