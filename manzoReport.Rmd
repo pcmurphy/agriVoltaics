@@ -1,0 +1,351 @@
+---
+title: "Manzo Agrivoltaics Report"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(tidyr)
+library(lubridate)
+
+```
+
+```{r, echo = FALSE}
+###
+#
+# This script is designed to generate rough plots of data from the Manzo AgriVoltaics site to 
+# look for sensor malfunction, extreme events, and overall site status.
+#
+# Plots generated:
+#   -VWC (Volumetric Water Content) of both the control and experiment (PV) gardens
+#   -Soil Temperature of both the control and experiment (PV) gardens
+#   -Micromet (Air Temperature and RH) of both the control and experiment (PV) gardens
+#   -Panel temperature experiment (garden) panels
+#
+# Successful running of this script requires the following two variables be set:
+collectionDate <- "2019_03_01"  # format collectionDate as "yyyy_mm_dd", otherwise the script won't work
+plotDays <- 36  # define how many days prior to the collection date that you want to plot
+#
+# Save the script, and then source it:
+#   -Click Source in RStudio (automatically saves changes)
+# OR
+#   -In the console, run: source("manzoPlots.R")
+#
+# Errors will cause the script to fail, Warning messages indicate something wasn't quite right,
+# but the script continued anyway.
+#
+###
+
+
+
+
+#####
+# Variables
+
+# Static
+if(.Platform$OS.type == "unix") {
+  dataPath <- "/Volumes/shares/SGD_BIO2/Biosphere 2/B2 Solar Yard & Agrivoltaics/Agrivoltaics Campbell Datalogger/data/MANZO/"
+} else {
+  dataPath <- "//boom.sbs.arizona.edu/shares/SGD_BIO2/Biosphere 2/B2 Solar Yard & Agrivoltaics/Agrivoltaics Campbell Datalogger/data/MANZO/"
+}
+
+recentDate <- as.POSIXct(paste(substring(collectionDate,1,4),substring(collectionDate,6,7),substring(collectionDate,9,10), sep = "-"))
+firstDate <- recentDate-(86400*plotDays)
+fileDate <- paste0(substring(collectionDate,1,4),substring(collectionDate,6,7),substring(collectionDate,9,10))
+dataFile <- paste0(dataPath,collectionDate,"/ManzoCR1000_Table1_",fileDate,".dat")
+
+color4 <- c("blue","red","cadetblue2","orange")
+color6 <- c("violet","blue","cadetblue2","red","orange","yellow")
+
+
+##### 
+# Functions
+#source("/Users/pmurphy/Box Sync/R/toolbox/clear.R")
+
+
+#####
+# File control
+#dir.create(paste0("/Users/pmurphy/Box Sync/GBG/figures/manzoAgrivoltaics/",collectionDate))
+#setwd(paste0("/Users/pmurphy/Box Sync/GBG/figures/manzoAgrivoltaics/",collectionDate))
+
+
+#####
+# Import data
+manzoColumns <- read.csv(file = dataFile, skip = 1)
+manzoData <- read.csv(file = dataFile, skip = 3)
+colnames(manzoData) <- colnames(manzoColumns)
+rm(manzoColumns)
+
+
+#####
+# Process data
+
+# Adjust time to POSIX format
+manzoData$TIMESTAMP <- as.POSIXct(manzoData$TIMESTAMP, format="%Y-%m-%d %H:%M")
+
+# Generate dataframe within specified dates specifically for plotting
+manzoDataPlot <- manzoData[manzoData$TIMESTAMP<recentDate & manzoData$TIMESTAMP>firstDate,]
+
+# Ensure columns are numeric format (often not the case if all NaN, will break plotting)
+manzoDataPlot[,2:ncol(manzoDataPlot)] <- sapply(manzoDataPlot[,2:ncol(manzoDataPlot)],as.numeric)
+
+
+
+#####
+# Averages
+
+# Soil temp
+soiltemp <- manzoDataPlot %>% 
+  group_by(month(TIMESTAMP),
+           mday(TIMESTAMP)) %>%
+  summarise(meanPV1=
+              mean(PV_Temp1),
+            meanPV2=
+              mean(PV_Temp2),
+            meanPV3=
+              mean(PV_Temp3),
+            meanC1=
+              mean(C_Temp1),
+            meanC2=
+              mean(C_Temp2),
+            meanC3=
+              mean(C_Temp3))
+vwc <- manzoDataPlot %>% 
+  group_by(month(TIMESTAMP),
+           mday(TIMESTAMP)) %>%
+  summarise(meanPV1=
+              mean(PV_VWC1),
+            meanPV2=
+              mean(PV_VWC2),
+            meanPV3=
+              mean(PV_VWC3),
+            meanC1=
+              mean(C_VWC1),
+            meanC2=
+              mean(C_VWC2),
+            meanC3=
+              mean(C_VWC3))
+micromet <- manzoDataPlot %>% 
+  group_by(month(TIMESTAMP),
+           mday(TIMESTAMP)) %>%
+  summarise(meanPVtemp=
+              mean(AirTC_PV_Avg),
+            meanCtemp=
+              mean(AirTC_C_Avg),
+            meanPVrh=
+              mean(RH_PV),
+            meanCrh=
+              mean(RH_C))
+
+PVCaverages <- data.frame(Treatment=c("Control","PV"),
+                    SoilTemp=c(mean(c(mean(soiltemp$meanC1),mean(soiltemp$meanC2),mean(soiltemp$meanC3))),mean(c(mean(soiltemp$meanPV1),mean(soiltemp$meanPV2),mean(soiltemp$meanPV3)))),
+                    VWC=c(mean(c(mean(vwc$meanC1),mean(vwc$meanC2),mean(vwc$meanC3))),mean(c(mean(vwc$meanPV1),mean(vwc$meanPV2),mean(vwc$meanPV3)))),
+                    AirTemp=c(mean(micromet$meanCtemp),mean(micromet$meanPVtemp)),
+                    AirRH=c(mean(micromet$meanCrh),mean(micromet$meanPVrh))
+                    )
+
+
+PVaverages <- data.frame(Treatment=c("Turf","Classroom","Garden"),
+                         PanelTemp=c(mean(2),mean(2),mean(2)))
+
+```
+
+## Quick Glance
+
+Data presented in this report were collected on `r recentDate` and cover `r plotDays` days.
+
+The table below summarizes the average of measurements between the control garden and the photovoltaic garden:
+
+```{r, echo=FALSE}
+
+PVCaverages
+
+```
+
+The table below summarizes the average of temperature measurements across three treatments of photovoltaic panels:
+
+```{r, echo=FALSE}
+
+PVaverages
+
+```
+
+## Plots
+
+```{r , echo=FALSE}
+par(mar=c(2,5,1,1), lwd = 1)
+plot(x = manzoDataPlot$TIMESTAMP,
+     y = manzoDataPlot$PV_VWC1,
+     main = "VWC",
+     col = color6[1],
+     type = "l",
+     ylim = c(min(manzoDataPlot[,c("PV_VWC1","PV_VWC2","PV_VWC3","C_VWC1","C_VWC2","C_VWC3")], na.rm = T),max(manzoDataPlot[,c("PV_VWC1","PV_VWC2","PV_VWC3","C_VWC1","C_VWC2","C_VWC3")], na.rm = T)),
+     #ylab = expression("VWC (m"^{3} ~ "m"^{-3}* ")"),
+     ylab = "VWC (%)",
+     xlab = "",
+     xaxt = "n"
+     )
+axis.POSIXct(1, at = seq(firstDate, recentDate, by = "5 days"), format = "%Y-%m-%d")
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$PV_VWC2,
+      col = color6[2])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$PV_VWC3,
+      col = color6[3])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$C_VWC1,
+      col = color6[4])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$C_VWC2,
+      col = color6[5])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$C_VWC3,
+      col = color6[6])
+grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
+     lwd = par("lwd"), equilogs = TRUE)
+legend("topleft",
+       legend=c("PV1", "PV2", "PV3", "C1", "C2", "C3"),
+       col=color6,
+       lty=1,
+       cex=0.8)
+box(lty = "solid", col = "black")
+
+par(mar=c(2,5,1,1), lwd = 1)
+plot(x = manzoDataPlot$TIMESTAMP,
+     y = manzoDataPlot$PV_Temp1,
+     main = "Soil Temperature",
+     col = color6[1],
+     type = "l",
+     ylim = c(min(manzoDataPlot[,c("C_Temp1","C_Temp2","C_Temp3")]),max(manzoDataPlot[,c("C_Temp1","C_Temp2","C_Temp3")])),
+     ylab = expression("Soil Temp ("*degree*C*")"),
+     xlab = "",
+     xaxt = "n"
+)
+axis.POSIXct(1, at = seq(firstDate, recentDate, by = "5 days"), format = "%Y-%m-%d")
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$PV_Temp2,
+      col = color6[2])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$PV_Temp3,
+      col = color6[3])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$C_Temp1,
+      col = color6[4])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$C_Temp2,
+      col = color6[5])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$C_Temp3,
+      col = color6[6])
+grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
+     lwd = par("lwd"), equilogs = TRUE)
+legend("topleft",
+       legend=c("PV1", "PV2", "PV3", "C1", "C2", "C3"),
+       col=color6,
+       lty=1,
+       cex=0.8)
+box(lty = "solid", col = "black")
+
+par(mar=c(2,5,1,4), lwd = 1)
+plot(x = manzoDataPlot$TIMESTAMP,
+     y = manzoDataPlot$AirTC_PV_Avg,
+     main = "Micrometeorology",
+     col = color4[1],
+     type = "l",
+     ylim = c(min(manzoDataPlot[,c("AirTC_PV_Avg","AirTC_C_Avg")]),max(manzoDataPlot[,c("AirTC_PV_Avg","AirTC_C_Avg")])),
+     ylab = expression("Air Temp ("*degree*C*")"),
+     xlab = "",
+     xaxt = "n"
+)
+axis.POSIXct(1, at = seq(firstDate, recentDate, by = "5 days"), format = "%Y-%m-%d")
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$AirTC_C_Avg,
+      col = color4[2])
+par(new = T)
+plot(x = manzoDataPlot$TIMESTAMP,
+     y = manzoDataPlot$RH_PV,
+     col = color4[3],
+     type = "l",
+     axes = F,
+     xlab = NA,
+     ylab = NA
+     )
+axis(side = 4)
+mtext(side = 4, line = 3, "Relative Humidity (%)")
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$RH_C,
+      col = color4[4])
+grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
+     lwd = par("lwd"), equilogs = TRUE)
+legend("topleft",
+       legend=c("AirT PV","AirT C","RH PV","RH C"),
+       col=color4,
+       lty=1,
+       cex=0.8)
+box(lty = "solid", col = "black")
+
+par(mar=c(2,5,1,1), lwd = 1)
+plot(x = manzoDataPlot$TIMESTAMP,
+     y = manzoDataPlot$PAR_Den_PV_Avg,
+     main = "Photosynthetically Active Radiation",
+     col = color4[1],
+     type = "l",
+     ylim = c(min(manzoDataPlot[,c("PAR_Den_PV_Avg","PAR_Den_C_Avg")]),max(manzoDataPlot[,c("PAR_Den_PV_Avg","PAR_Den_C_Avg")])),
+     ylab = expression("PAR Density (" * mu * "mol"~ m^{-2} ~ s^{-1} * ")"),
+     xlab = "",
+     xaxt = "n"
+)
+axis.POSIXct(1, at = seq(firstDate, recentDate, by = "5 days"), format = "%Y-%m-%d")
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$PAR_Den_C_Avg,
+      col = color4[2])
+grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
+     lwd = par("lwd"), equilogs = TRUE)
+legend("topleft",
+       legend=c("PV","C"),
+       col=color4,
+       lty=1,
+       cex=0.8)
+box(lty = "solid", col = "black")
+
+par(mar=c(2,5,1,1), lwd = 1)
+plot(x = manzoDataPlot$TIMESTAMP,
+     y = manzoDataPlot$PV_Classroom_1_Avg,
+     main = "Classroom PV Temperatures",
+     col = color6[1],
+     type = "l",
+     ylim = c(0,120),
+     ylab = expression("PV Temp ("*degree*C*")"),
+     xlab = "",
+     xaxt = "n"
+)
+axis.POSIXct(1, at = seq(firstDate, recentDate, by = "5 days"), format = "%Y-%m-%d")
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$PV_Classroom_2_Avg,
+      col = color6[2])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$PV_Classroom_3_Avg,
+      col = color6[3])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$PV_Classroom_4_Avg,
+      col = color6[4])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$PV_Classroom_5_Avg,
+      col = color6[5])
+lines(x = manzoDataPlot$TIMESTAMP,
+      y = manzoDataPlot$PV_Classroom_6_Avg,
+      col = color6[6])
+grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
+     lwd = par("lwd"), equilogs = TRUE)
+legend("topleft",
+       legend=c("Classroom1", "Classroom2", "Classroom3", "Classroom4", "Classroom5", "Classroom6"),
+       col=color6,
+       lty=1,
+       cex=0.8)
+box(lty = "solid", col = "black")
+
+```
+
+
