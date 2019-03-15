@@ -175,7 +175,9 @@ PVaverages
 ## Plots
 
 ```{r , echo=FALSE}
-par(mar=c(2,5,1,1), lwd = 1)
+par(mar=c(2,5,1,1),
+    pin=c(5,2),
+    lwd = 1)
 plot(x = manzoDataPlot$TIMESTAMP,
      y = manzoDataPlot$PV_VWC1,
      main = "VWC",
@@ -212,7 +214,9 @@ legend("topleft",
        cex=0.8)
 box(lty = "solid", col = "black")
 
-par(mar=c(2,5,1,1), lwd = 1)
+par(mar=c(2,5,1,1),
+    pin=c(5,2),
+    lwd = 1)
 plot(x = manzoDataPlot$TIMESTAMP,
      y = manzoDataPlot$PV_Temp1,
      main = "Soil Temperature",
@@ -248,7 +252,9 @@ legend("topleft",
        cex=0.8)
 box(lty = "solid", col = "black")
 
-par(mar=c(2,5,1,4), lwd = 1)
+par(mar=c(2,5,1,4),
+    pin=c(5,2),
+    lwd = 1)
 plot(x = manzoDataPlot$TIMESTAMP,
      y = manzoDataPlot$AirTC_PV_Avg,
      main = "Micrometeorology",
@@ -286,7 +292,9 @@ legend("topleft",
        cex=0.8)
 box(lty = "solid", col = "black")
 
-par(mar=c(2,5,1,1), lwd = 1)
+par(mar=c(2,5,1,1),
+    pin=c(5,2),
+    lwd = 1)
 plot(x = manzoDataPlot$TIMESTAMP,
      y = manzoDataPlot$PAR_Den_PV_Avg,
      main = "Photosynthetically Active Radiation",
@@ -310,7 +318,9 @@ legend("topleft",
        cex=0.8)
 box(lty = "solid", col = "black")
 
-par(mar=c(2,5,1,1), lwd = 1)
+par(mar=c(2,5,1,1),
+    pin=c(5,2),
+    lwd = 1)
 plot(x = manzoDataPlot$TIMESTAMP,
      y = manzoDataPlot$PV_Classroom_1_Avg,
      main = "Classroom PV Temperatures",
